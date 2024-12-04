@@ -1,3 +1,4 @@
+//Metadata to CSV convertor tool 
 use std::fs::OpenOptions;
 use std::io::*;
 use std::env;
@@ -6,12 +7,7 @@ use twinleaf::tio;
 
 fn read_in_csv(args: &[String], id: u32) -> std::io::Result<()> {
     let mut parser = DeviceDataParser::new(args.len() > 1);
-    let path;
-    if id == 1 {
-        path = "data.csv".to_string();
-    } else{
-        path = "data2.csv".to_string();
-    }
+    let path= format!("data{}.csv", id).to_string();
 
     let mut file = OpenOptions::new().append(true).create(true).open(path)?;
     let mut streamhead: bool = false;
@@ -25,7 +21,6 @@ fn read_in_csv(args: &[String], id: u32) -> std::io::Result<()> {
             for sample in parser.process_packet(&pkt) {
                 //match stream id
                 if sample.stream.stream_id == id as u8 {
-                    //iterate through values
                     for col in &sample.columns {
                         let time = format!("{:.6}   ", sample.timestamp_end());
                         let value = match col.value {
@@ -56,14 +51,12 @@ fn read_in_csv(args: &[String], id: u32) -> std::io::Result<()> {
                             let _= file.write_all(timefmt.as_bytes());
                             first = false;
                         }
-                            
                         file.write_all(formatted_value.as_bytes())?;
                         
                     }
                     file.write_all(b"\n")?;
                     first = true;
                 }
-
             }
         }
     }

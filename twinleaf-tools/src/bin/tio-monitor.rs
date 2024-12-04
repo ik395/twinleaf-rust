@@ -1,4 +1,4 @@
-///This is a basic example of using the twinleaf rust package to run a CLI
+//Livestream monitor of that can take threshold values for stream values
 use twinleaf::tio;
 use twinleaf::data::{ColumnData, Device};
 use tio::proto::DeviceRoute;
@@ -57,10 +57,10 @@ fn stream(args: &[String]) {
     let proxy = proxy::Interface::new(&root);
     let device = proxy.device_rpc(route).unwrap();
 
-    let column: String = device.get("data.stream.columns").unwrap(); //proxy get fn returns string of stream column names
+    let column: String = device.get("data.stream.columns").unwrap();
     let mut names: Vec<String> = Vec::new();
    
-    for name in column.split_whitespace() { //stream column names get pushed to a vector
+    for name in column.split_whitespace() { 
         names.push(name.to_string());
     }
 
@@ -86,7 +86,6 @@ fn stream(args: &[String]) {
     endwin();
 }
 
-//new metadata format
 fn dump(args: &[String], path: &str) {
     let opts = tio_opts();
     let (_matches, root, route) = tio_parseopts(opts, args);
@@ -112,8 +111,7 @@ fn dump(args: &[String], path: &str) {
         let name = format!("Device Name: {}  Serial: {}   Session ID: {}", sample.device.name, sample.device.serial_number, sample.device.session_id);
         window.mvprintw(1,0, &name);
 
-        for col in &sample.columns{
-            //let color_pair = if col.desc.name == "field" {3} else {1}; 
+        for col in &sample.columns{ 
             let color_pair = monitor::range::test_range(col.desc.name.clone(), 
                 match col.value {
                 ColumnData::Int(x) => x as f32,
@@ -142,7 +140,6 @@ fn dump(args: &[String], path: &str) {
                     window.attroff(COLOR_PAIR(color_pair));
                 }
                 0x02 => {
-                    //println!("\n");
                     window.refresh();
                     
                     let string = format!(
@@ -184,7 +181,7 @@ fn main(){
         }
         _ => {
             println!("--Usage--");
-            println!("Note: Running on bad/no yaml defaults to colorless values");
+            println!("Note: Running on bad/no yaml file defaults to colorless values");
             println!("tio-monitor stream");
             println!("tio-monitor usb [yaml file_path]")
         }
