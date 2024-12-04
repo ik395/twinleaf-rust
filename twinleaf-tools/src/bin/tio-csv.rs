@@ -6,7 +6,7 @@ use twinleaf::tio;
 
 fn read_in_csv(args: &[String], id: u32) -> std::io::Result<()> {
     let mut parser = DeviceDataParser::new(args.len() > 1);
-    let mut path = String::new();
+    let path;
     if id == 1 {
         path = "data.csv".to_string();
     } else{
@@ -73,7 +73,7 @@ fn read_in_csv(args: &[String], id: u32) -> std::io::Result<()> {
 fn main()  {
     let args: Vec<String> = env::args().skip(1).collect();
     if args.len() < 1{
-        eprintln!("Usage: csv <stream id> <metadata> <csv>");
+        eprintln!("Usage: tio-csv <stream id> <metadata> <csv>");
         std::process::exit(1);
     }
     let id  = args[0].parse().unwrap_or_else(|_| {

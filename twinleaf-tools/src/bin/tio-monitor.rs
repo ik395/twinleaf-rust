@@ -4,7 +4,7 @@ use twinleaf::data::{ColumnData, Device};
 use tio::proto::DeviceRoute;
 use tio::proxy;
 use tio::util;
-mod utils;
+use twinleaf::monitor;
 
 use getopts::Options;
 use std::env;
@@ -114,7 +114,7 @@ fn dump(args: &[String], path: &str) {
 
         for col in &sample.columns{
             //let color_pair = if col.desc.name == "field" {3} else {1}; 
-            let color_pair = utils::range::test_range(col.desc.name.clone(), 
+            let color_pair = monitor::range::test_range(col.desc.name.clone(), 
                 match col.value {
                 ColumnData::Int(x) => x as f32,
                 ColumnData::UInt(x) => x as f32,
@@ -169,13 +169,12 @@ fn dump(args: &[String], path: &str) {
     }
 }
 
-//running on bad/no yaml defaults to colorless values
 fn main(){
     let args: Vec<String> = env::args().collect();
 
     let default_path = "default.yaml".to_string();
     let args2 = args.get(2).unwrap_or(&default_path);
-    
+
     match args[1].as_str() {
         "stream" => {
             stream(&args[1..])
@@ -184,11 +183,11 @@ fn main(){
             dump(&args[1..], args2);
         }
         _ => {
-            println!("Usage:");
-            println!("cli stream");
-            println!("cli usb [yaml file_path]")
+            println!("--Usage--");
+            println!("Note: Running on bad/no yaml defaults to colorless values");
+            println!("tio-monitor stream");
+            println!("tio-monitor usb [yaml file_path]")
         }
     }
-
 }
 

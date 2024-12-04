@@ -2,6 +2,7 @@ use std::fs;
 use std::io::Read;
 use serde::ser::StdError;
 
+
 #[derive(serde::Deserialize)]
 struct Threshold {
     min: f32,

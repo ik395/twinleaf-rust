@@ -561,6 +561,8 @@ dependencies = [
  "mio",
  "mio-serial",
  "num_enum",
+ "serde",
+ "serde_yaml",
  "winapi",
 ]
 
@@ -573,8 +575,6 @@ dependencies = [
  "crossbeam",
  "getopts",
  "pancurses",
- "serde",
- "serde_yaml",
  "serialport",
  "twinleaf",
 ]
