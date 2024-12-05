@@ -7,7 +7,8 @@ use twinleaf::tio;
 
 fn read_in_csv(args: &[String], id: u32) -> std::io::Result<()> {
     let mut parser = DeviceDataParser::new(args.len() > 1);
-    let path= format!("data{}.csv", id).to_string();
+    let s = &args[1].replace("csv", "");
+    let path= format!("{}{}.csv", s, id).to_string();
 
     let mut file = OpenOptions::new().append(true).create(true).open(path)?;
     let mut streamhead: bool = false;
