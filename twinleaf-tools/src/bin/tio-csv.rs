@@ -29,15 +29,14 @@ fn read_in_csv(args: &[String], id: u32) -> std::io::Result<()> {
                             ColumnData::Float(x) => format!("{:.5}", x),
                             ColumnData::Unknown => "?".to_string(),
                         };
-                        let field_width = sample.columns.iter().map(|x| x.desc.name.clone().len()).max().unwrap();
-
+                    
                         //write in column names
                         if !streamhead{
-                            let timehead = format!("{:<width$}", "time", width = field_width + 1);
+                            let timehead = format!("{},", "time");
                             let _= file.write_all(timehead.as_bytes()); 
                             
                             for col in &sample.columns {
-                                let header = format!("{:<width$}", col.desc.name, width = field_width + 1);
+                                let header = format!("{},", col.desc.name);
                                 file.write_all(header.as_bytes())?;
                             }
                             file.write_all(b"\n")?;
@@ -45,8 +44,8 @@ fn read_in_csv(args: &[String], id: u32) -> std::io::Result<()> {
                         }
                         
                         //write in data
-                        let timefmt = format!("{:<width$}", time, width = field_width +1);
-                        let formatted_value = format!("{:<width$}", value, width = field_width +1 );
+                        let timefmt = format!("{},", time);
+                        let formatted_value = format!("{},", value );
                         if first{
                             let _= file.write_all(timefmt.as_bytes());
                             first = false;
