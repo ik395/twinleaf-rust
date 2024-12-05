@@ -1,10 +1,8 @@
-//Livestream monitor of that can take threshold values for stream values
 use twinleaf::tio;
 use twinleaf::data::{ColumnData, Device};
 use tio::proto::DeviceRoute;
 use tio::proxy;
 use tio::util;
-use twinleaf::monitor;
 
 use getopts::Options;
 use std::env;
@@ -57,7 +55,7 @@ fn stream(args: &[String]) {
     let proxy = proxy::Interface::new(&root);
     let device = proxy.device_rpc(route).unwrap();
 
-    let column: String = device.get("data.stream.columns").unwrap();
+    let column: String = device.get("data.stream.columns").unwrap(); 
     let mut names: Vec<String> = Vec::new();
    
     for name in column.split_whitespace() { 
@@ -74,11 +72,11 @@ fn stream(args: &[String]) {
             window.clear();
             let floats: &[f32] = cast_slice(&data.data);
             
-            for (name, &value) in names.iter().zip(floats.iter()) { //iterate through the names and stream data
+            for (name, &value) in names.iter().zip(floats.iter()) { 
                 println!("\n"); 
                 window.refresh();                
                 let string = format!("{}: {:?}", name.as_str(), value);               
-                window.mvprintw(0,0, &string); //print string into window
+                window.mvprintw(0,0, &string); 
             }   
         }
         
@@ -86,7 +84,7 @@ fn stream(args: &[String]) {
     endwin();
 }
 
-fn dump(args: &[String], path: &str) {
+fn run_monitor(args: &[String], path: &str) {
     let opts = tio_opts();
     let (_matches, root, route) = tio_parseopts(opts, args);
 
@@ -103,7 +101,7 @@ fn dump(args: &[String], path: &str) {
     
     window.refresh();
     noecho();
-    let mut pos = 3;
+    let mut y_position = 3;
     
     loop{
         let sample = device.next();
@@ -111,60 +109,36 @@ fn dump(args: &[String], path: &str) {
         let name = format!("Device Name: {}  Serial: {}   Session ID: {}", sample.device.name, sample.device.serial_number, sample.device.session_id);
         window.mvprintw(1,0, &name);
 
-        for col in &sample.columns{ 
-            let color_pair = monitor::range::test_range(col.desc.name.clone(), 
+        for col in &sample.columns{
+            let color_pair = twinleaf::monitor::range::test_range(col.desc.name.clone(), 
                 match col.value {
                 ColumnData::Int(x) => x as f32,
                 ColumnData::UInt(x) => x as f32,
                 ColumnData::Float(x) => x as f32,
                 ColumnData::Unknown => 0.0,
                 }, Some(path.to_string()));
-            
-            //TODO: Modify matching stream ids to arbitrary available streams
-            match sample.stream.stream_id{
-                0x01 => {
-                    window.refresh();
-                    let string = format!(
-                        " {}: {}",
-                        col.desc.name,
-                        match col.value {
-                            ColumnData::Int(x) => format!("{}", x),
-                            ColumnData::UInt(x) => format!("{:.3}", x),
-                            ColumnData::Float(x) => format!("{:.3}", x),
-                            ColumnData::Unknown => "?".to_string(),
-                        }
-                    );  
-                    
-                    window.attron(COLOR_PAIR(color_pair));
-                    window.mvprintw(pos, 0, &string);
-                    window.attroff(COLOR_PAIR(color_pair));
 
-                    pos += 1;
+            let string = format!(
+                " {}: {}",
+                col.desc.name,
+                match col.value {
+                    ColumnData::Int(x) => format!("{}", x),
+                    ColumnData::UInt(x) => format!("{:.3}", x),
+                    ColumnData::Float(x) => format!("{:.3}", x),
+                    ColumnData::Unknown => "?".to_string(),
                 }
-                0x02 => {
-                    window.refresh();
-                    pos += 1;
-                    
-                    let string = format!(
-                        " {}: {}",
-                        col.desc.name,
-                        match col.value {
-                            ColumnData::Int(x) => format!("{}", x),
-                            ColumnData::UInt(x) => format!("{:.3}", x),
-                            ColumnData::Float(x) => format!("{:.3}", x),
-                            ColumnData::Unknown => "?".to_string(),
-                        }
-                    );  
-                    window.attron(COLOR_PAIR(color_pair));
-                    window.mvprintw(pos, 0, &string);                
-                    window.attroff(COLOR_PAIR(color_pair));
-                    window.refresh();
-                    
-                }
-                _ => {}
+            ); 
+    
+            if sample.stream.stream_id == 0x02 {
+                y_position += 1;
             }
+
+            window.attron(COLOR_PAIR(color_pair));
+            window.mvprintw(y_position, 0, &string);                
+            window.attroff(COLOR_PAIR(color_pair));
+            window.refresh();
         }
-        pos = 3;
+        y_position = 3;
     }
 }
 
@@ -173,20 +147,21 @@ fn main(){
 
     let default_path = "default.yaml".to_string();
     let args2 = args.get(2).unwrap_or(&default_path);
-
+    
     match args[1].as_str() {
         "stream" => {
             stream(&args[1..])
         }
         "usb" => {
-            dump(&args[1..], args2);
+            run_monitor(&args[1..], args2);
         }
         _ => {
-            println!("--Usage--");
-            println!("Note: Running on bad/no yaml file defaults to colorless values");
+            println!("Usage:");
+            println!("Note: running on bad/no yaml defaults to colorless values");
             println!("tio-monitor stream");
             println!("tio-monitor usb [yaml file_path]")
         }
     }
+
 }
 

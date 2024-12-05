@@ -2,6 +2,8 @@
 
 This repository contains a set of tools that are useful for working with Twinleaf quantum sensors and accessories. 
 
+### tio-proxy
+
 The primary tool is the proxy, which makes the device available via ethernet:
 
 		tio-proxy --auto
@@ -14,6 +16,8 @@ When there are more than one serial port available, it is necessary to specify t
 
 With the proxy running, a set of tools can be used on the data stream. 
 
+### tio-tool
+
 Logging data:
 		
 		tio-tool log
@@ -25,6 +29,25 @@ Issuing commands:
 And a variety of additional useful functions.
 
 
+### tio-monitor
+Displays a live stream of incoming data. An optional yaml file can be read in to monitor the desired threshold.
+
+Yaml format file for requested thresholds:
+
+	field: {min: 0.0, max: 50000.0}
+
+Running the tool:
+
+	tio-monitor usb [yaml file path]
+
+### tio-csv
+Converts logged metadata from the sensor to a csv format.
+
+To run: 
+
+	tio-csv <stream id> <metadata> <csv>
+
+
 ## Installation
 
 With rust language tools, install the tools using:
@@ -34,11 +57,9 @@ With rust language tools, install the tools using:
 
 ## Development
 
-On macOS and linux, there is a dependency on libudev; to install it use:
+On linux, there is a dependency on libudev; to install it use:
 
 		sudo apt install libudev-dev  # debian linux
-		brew install libudev          # macOS homebrew
-
 
 ## Cross compilation 
 
