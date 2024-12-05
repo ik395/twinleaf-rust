@@ -123,7 +123,7 @@ fn dump(args: &[String], path: &str) {
             //TODO: Modify matching stream ids to arbitrary available streams
             match sample.stream.stream_id{
                 0x01 => {
-                    window.clear();
+                    window.refresh();
                     let string = format!(
                         " {}: {}",
                         col.desc.name,
