@@ -103,7 +103,7 @@ fn dump(args: &[String], path: &str) {
     
     window.refresh();
     noecho();
-    let mut pos = 4;
+    let mut pos = 3;
     
     loop{
         let sample = device.next();
@@ -136,11 +136,14 @@ fn dump(args: &[String], path: &str) {
                     );  
                     
                     window.attron(COLOR_PAIR(color_pair));
-                    window.mvprintw(3, 0, &string);
+                    window.mvprintw(pos, 0, &string);
                     window.attroff(COLOR_PAIR(color_pair));
+
+                    pos += 1;
                 }
                 0x02 => {
                     window.refresh();
+                    pos += 1;
                     
                     let string = format!(
                         " {}: {}",
@@ -157,12 +160,11 @@ fn dump(args: &[String], path: &str) {
                     window.attroff(COLOR_PAIR(color_pair));
                     window.refresh();
                     
-                    pos += 1;
                 }
                 _ => {}
             }
         }
-        pos = 4;
+        pos = 3;
     }
 }
 
