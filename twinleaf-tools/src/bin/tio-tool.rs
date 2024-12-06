@@ -438,15 +438,14 @@ fn log_data_dump(args: &[String]) {
 
 fn log_csv(args: &[String]) -> std::io::Result<()> {
     let mut parser = DeviceDataParser::new(args.len() > 1);
-    let s = &args[2].replace("csv", "");
-    let id: u8 = args[0].parse().unwrap();
-    let path= format!("{}{}.csv", s, &args[0]).to_string();
-
+    let s = &args[3].replace("csv", "");
+    let id: u8 = args[1].parse().unwrap();
+    let path= format!("{}{}.csv", s, &args[1]).to_string();
     let mut file = OpenOptions::new().append(true).create(true).open(path)?;
     let mut streamhead: bool = false;
     let mut first: bool = true;
 
-    for path in &args[1..] {
+    for path in &args[2..] {
         let mut rest: &[u8] = &std::fs::read(path).unwrap();
         while rest.len() > 0 {
             let (pkt, len) = tio::Packet::deserialize(rest).unwrap();
@@ -572,7 +571,7 @@ fn main() {
         }
         "log-csv" => {
             
-            let _= log_csv(&args); //.unwrap();
+            let _= log_csv(&args[1..]); //.unwrap();
         }
         "firmware-upgrade" => {
             firmware_upgrade(&args[2..]); //.unwrap();
