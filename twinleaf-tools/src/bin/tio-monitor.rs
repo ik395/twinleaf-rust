@@ -48,42 +48,6 @@ fn tio_parseopts(opts: Options, args: &[String]) -> (getopts::Matches, String, D
     (matches, root, route)
 }
 
-fn stream(args: &[String]) {
-    let opts = tio_opts();
-    let (_matches, root, route) = tio_parseopts(opts, args);
-    
-    let proxy = proxy::Interface::new(&root);
-    let device = proxy.device_rpc(route).unwrap();
-
-    let column: String = device.get("data.stream.columns").unwrap(); 
-    let mut names: Vec<String> = Vec::new();
-   
-    for name in column.split_whitespace() { 
-        names.push(name.to_string());
-    }
-
-    //initialize terminal window
-    let window = initscr();
-    window.refresh();
-    noecho();
-
-    for pkt in proxy.tree_full().unwrap().iter() {
-        if let tio::proto::Payload::LegacyStreamData(ref data) = pkt.payload {
-            window.clear();
-            let floats: &[f32] = cast_slice(&data.data);
-            
-            for (name, &value) in names.iter().zip(floats.iter()) { 
-                println!("\n"); 
-                window.refresh();                
-                let string = format!("{}: {:?}", name.as_str(), value);               
-                window.mvprintw(0,0, &string); 
-            }   
-        }
-        
-    }
-    endwin();
-}
-
 fn run_monitor(args: &[String]) {
     let opts = tio_opts();
     let (_matches, root, route) = tio_parseopts(opts, args);
@@ -130,20 +94,6 @@ fn run_monitor(args: &[String]) {
 fn main(){
     let args: Vec<String> = env::args().collect();
     
-    match args[1].as_str() {
-        "stream" => {
-            stream(&args[1..])
-        }
-        "usb" => {
-            run_monitor(&args[1..]);
-        }
-        _ => {
-            println!("Usage:");
-            println!("Note: running on improper/no yaml file defaults to colorless values");
-            println!("tio-monitor stream");
-            println!("tio-monitor usb")
-        }
-    }
-
+    run_monitor(&args);
 }
 
