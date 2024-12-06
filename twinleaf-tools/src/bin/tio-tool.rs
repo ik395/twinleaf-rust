@@ -435,6 +435,16 @@ fn log_data_dump(args: &[String]) {
     }
 }
 
+//match 
+fn match_value(data: ColumnData) -> String {
+    let data_type = match data {
+        ColumnData::Int(x) => format!("{}", x),
+        ColumnData::UInt(x) => format!("{}", x),
+        ColumnData::Float(x) => format!("{}", x),
+        ColumnData::Unknown => "?".to_string(),
+    };
+    data_type
+}
 
 fn log_csv(args: &[String]) -> std::io::Result<()> {
     let mut parser = DeviceDataParser::new(args.len() > 1);
@@ -458,13 +468,8 @@ fn log_csv(args: &[String]) -> std::io::Result<()> {
                 if sample.stream.stream_id == id as u8 {
                     //iterate through values
                     for col in &sample.columns {
-                        let time = format!("{:.6}   ", sample.timestamp_end());
-                        let value = match col.value {
-                            ColumnData::Int(x) => format!("{}", x),
-                            ColumnData::UInt(x) => format!("{}", x),
-                            ColumnData::Float(x) => format!("{:.5}", x),
-                            ColumnData::Unknown => "?".to_string(),
-                        };
+                        let time = format!("{:.6}", sample.timestamp_end());
+                        let value = match_value(col.value.clone());
                     
                         //write in column names
                         if !streamhead{
@@ -472,7 +477,12 @@ fn log_csv(args: &[String]) -> std::io::Result<()> {
                             let _= file.write_all(timehead.as_bytes()); 
                             
                             for col in &sample.columns {
-                                let header = format!("{},", col.desc.name);
+                                let mut header = format!("{},", col.desc.name);
+                                
+                                if col.desc.name == sample.columns[&sample.columns.len() -1].desc.name.clone() {
+                                    header = format!("{}", col.desc.name);
+                                }
+                                
                                 file.write_all(header.as_bytes())?;
                             }
                             file.write_all(b"\n")?;
@@ -481,10 +491,14 @@ fn log_csv(args: &[String]) -> std::io::Result<()> {
                         
                         //write in data
                         let timefmt = format!("{},", time);
-                        let formatted_value = format!("{},", value );
+                        let mut formatted_value = format!("{},", value );
                         if first{
                             let _= file.write_all(timefmt.as_bytes());
                             first = false;
+                        }
+
+                        if value == match_value(sample.columns[&sample.columns.len() - 1].value.clone()) {
+                            formatted_value = format!("{}", value);
                         }
                             
                         file.write_all(formatted_value.as_bytes())?;
