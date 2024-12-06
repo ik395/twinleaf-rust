@@ -26,26 +26,21 @@ Issuing commands:
 		
 		tio-tool rpc dev.name
 
-And a variety of additional useful functions.
+There are a variety of additional useful functions. 
+To see all tool options run:
 
+		tio-tool --help
 
 ### tio-monitor
 Displays a live stream of incoming data. An optional yaml file can be read in to monitor the desired threshold.
 
 Yaml format file for requested thresholds:
 
-	field: {min: 0.0, max: 50000.0}
+		field: {min: 0.0, max: 50000.0}
 
 Running the tool:
 
-	tio-monitor usb [yaml file path]
-
-### tio-csv
-Converts logged metadata from the sensor to a csv format.
-
-To run: 
-
-	tio-csv <stream id> <metadata> <csv>
+		tio-monitor usb [yaml file path]
 
 
 ## Installation
