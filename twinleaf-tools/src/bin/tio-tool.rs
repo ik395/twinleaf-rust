@@ -438,9 +438,12 @@ fn log_data_dump(args: &[String]) {
 
 fn log_csv(args: &[String]) -> std::io::Result<()> {
     let mut parser = DeviceDataParser::new(args.len() > 1);
-    let s = &args[3].replace("csv", "");
     let id: u8 = args[1].parse().unwrap();
+    let output_name = args.get(3).unwrap_or(&args[2]);
+
+    let s = output_name.replace("csv", "");
     let path= format!("{}{}.csv", s, &args[1]).to_string();
+    
     let mut file = OpenOptions::new().append(true).create(true).open(path)?;
     let mut streamhead: bool = false;
     let mut first: bool = true;
