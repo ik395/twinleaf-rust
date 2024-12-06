@@ -84,7 +84,7 @@ fn stream(args: &[String]) {
     endwin();
 }
 
-fn run_monitor(args: &[String], path: &str) {
+fn run_monitor(args: &[String]) {
     let opts = tio_opts();
     let (_matches, root, route) = tio_parseopts(opts, args);
 
@@ -94,11 +94,6 @@ fn run_monitor(args: &[String], path: &str) {
 
     //initialize terminal window
     let window = initscr();
-    start_color();
-    init_pair(1, COLOR_WHITE, COLOR_BLACK);
-    init_pair(2, COLOR_GREEN, COLOR_BLACK);
-    init_pair(3, COLOR_RED, COLOR_BLACK);
-    
     window.refresh();
     noecho();
     let mut y_position = 3;
@@ -110,14 +105,6 @@ fn run_monitor(args: &[String], path: &str) {
         window.mvprintw(1,0, &name);
 
         for col in &sample.columns{
-            let color_pair = twinleaf::monitor::range::test_range(col.desc.name.clone(), 
-                match col.value {
-                ColumnData::Int(x) => x as f32,
-                ColumnData::UInt(x) => x as f32,
-                ColumnData::Float(x) => x as f32,
-                ColumnData::Unknown => 0.0,
-                }, Some(path.to_string()));
-
             let string = format!(
                 " {}: {}",
                 col.desc.name,
@@ -133,9 +120,7 @@ fn run_monitor(args: &[String], path: &str) {
                 y_position += 1;
             }
 
-            window.attron(COLOR_PAIR(color_pair));
             window.mvprintw(y_position, 0, &string);                
-            window.attroff(COLOR_PAIR(color_pair));
             window.refresh();
         }
         y_position = 3;
@@ -144,22 +129,19 @@ fn run_monitor(args: &[String], path: &str) {
 
 fn main(){
     let args: Vec<String> = env::args().collect();
-
-    let default_path = "default.yaml".to_string();
-    let args2 = args.get(2).unwrap_or(&default_path);
     
     match args[1].as_str() {
         "stream" => {
             stream(&args[1..])
         }
         "usb" => {
-            run_monitor(&args[1..], args2);
+            run_monitor(&args[1..]);
         }
         _ => {
             println!("Usage:");
             println!("Note: running on improper/no yaml file defaults to colorless values");
             println!("tio-monitor stream");
-            println!("tio-monitor usb [yaml file_path]")
+            println!("tio-monitor usb")
         }
     }
 
