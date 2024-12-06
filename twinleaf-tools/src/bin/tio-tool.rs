@@ -436,7 +436,7 @@ fn log_data_dump(args: &[String]) {
 }
 
 
-fn csv_log(args: &[String]) -> std::io::Result<()> {
+fn log_csv(args: &[String]) -> std::io::Result<()> {
     let mut parser = DeviceDataParser::new(args.len() > 1);
     let s = &args[2].replace("csv", "");
     let id: u8 = args[0].parse().unwrap();
@@ -570,9 +570,9 @@ fn main() {
         "log-data-dump" => {
             log_data_dump(&args[2..]); //.unwrap();
         }
-        "csv_log" => {
+        "log-csv" => {
             
-            let _= csv_log(&args); //.unwrap();
+            let _= log_csv(&args); //.unwrap();
         }
         "firmware-upgrade" => {
             firmware_upgrade(&args[2..]); //.unwrap();
@@ -588,7 +588,7 @@ fn main() {
             println!(" tio-tool log [-r url] [-s sensor] [filename]");
             println!(" tio-tool log-dump filename [filename ...]");
             println!(" tio-tool log-data-dump filename [filename ...]");
-            println!(" tio-tool csv_log [stream id] [metadata] [csv ...]");
+            println!(" tio-tool log-csv <stream id> [metadata] <csv>");
             println!(" tio-tool rpc-list [-r url] [-s sensor]");
             println!(" tio-tool rpc [-r url] [-s sensor] [-t type] [-d] <rpc-name> [rpc-arg]");
             println!(" tio-tool rpc-dump [-r url] [-s sensor] <rpc-name>");
