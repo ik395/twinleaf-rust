@@ -32,15 +32,11 @@ To see all tool options run:
 		tio-tool --help
 
 ### tio-monitor
-Displays a live stream of incoming data. An optional yaml file can be read in to monitor the desired threshold.
-
-Yaml format file for requested thresholds:
-
-		field: {min: 0.0, max: 50000.0}
+Displays a live stream of incoming data.
 
 Running the tool:
 
-		tio-monitor usb [yaml file path]
+		tio-monitor usb 
 
 
 ## Installation
