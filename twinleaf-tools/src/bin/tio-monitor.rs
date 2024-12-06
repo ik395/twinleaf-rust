@@ -157,7 +157,7 @@ fn main(){
         }
         _ => {
             println!("Usage:");
-            println!("Note: running on bad/no yaml defaults to colorless values");
+            println!("Note: running on improper/no yaml file defaults to colorless values");
             println!("tio-monitor stream");
             println!("tio-monitor usb [yaml file_path]")
         }
