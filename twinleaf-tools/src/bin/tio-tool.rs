@@ -2,10 +2,12 @@ use tio::proto::DeviceRoute;
 use tio::proxy;
 use tio::util;
 use twinleaf::tio;
+use twinleaf::data::{DeviceDataParser, ColumnData};
 
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
+use std::fs::OpenOptions;
 
 use getopts::Options;
 
@@ -433,6 +435,69 @@ fn log_data_dump(args: &[String]) {
     }
 }
 
+
+fn csv_log(args: &[String]) -> std::io::Result<()> {
+    let mut parser = DeviceDataParser::new(args.len() > 1);
+    let s = &args[2].replace("csv", "");
+    let id: u8 = args[0].parse().unwrap();
+    let path= format!("{}{}.csv", s, &args[0]).to_string();
+
+    let mut file = OpenOptions::new().append(true).create(true).open(path)?;
+    let mut streamhead: bool = false;
+    let mut first: bool = true;
+
+    for path in &args[1..] {
+        let mut rest: &[u8] = &std::fs::read(path).unwrap();
+        while rest.len() > 0 {
+            let (pkt, len) = tio::Packet::deserialize(rest).unwrap();
+            rest = &rest[len..];
+            for sample in parser.process_packet(&pkt) {
+                //match stream id
+                if sample.stream.stream_id == id as u8 {
+                    //iterate through values
+                    for col in &sample.columns {
+                        let time = format!("{:.6}   ", sample.timestamp_end());
+                        let value = match col.value {
+                            ColumnData::Int(x) => format!("{}", x),
+                            ColumnData::UInt(x) => format!("{}", x),
+                            ColumnData::Float(x) => format!("{:.5}", x),
+                            ColumnData::Unknown => "?".to_string(),
+                        };
+                    
+                        //write in column names
+                        if !streamhead{
+                            let timehead = format!("{},", "time");
+                            let _= file.write_all(timehead.as_bytes()); 
+                            
+                            for col in &sample.columns {
+                                let header = format!("{},", col.desc.name);
+                                file.write_all(header.as_bytes())?;
+                            }
+                            file.write_all(b"\n")?;
+                            streamhead = true;
+                        }
+                        
+                        //write in data
+                        let timefmt = format!("{},", time);
+                        let formatted_value = format!("{},", value );
+                        if first{
+                            let _= file.write_all(timefmt.as_bytes());
+                            first = false;
+                        }
+                            
+                        file.write_all(formatted_value.as_bytes())?;
+                        
+                    }
+                    file.write_all(b"\n")?;
+                    first = true;
+                }
+
+            }
+        }
+    }
+    Ok(())
+}
+
 fn firmware_upgrade(args: &[String]) {
     let opts = tio_opts();
     let (matches, root, route) = tio_parseopts(opts, args);
@@ -505,6 +570,10 @@ fn main() {
         "log-data-dump" => {
             log_data_dump(&args[2..]); //.unwrap();
         }
+        "csv_log" => {
+            
+            let _= csv_log(&args); //.unwrap();
+        }
         "firmware-upgrade" => {
             firmware_upgrade(&args[2..]); //.unwrap();
         }
@@ -519,6 +588,7 @@ fn main() {
             println!(" tio-tool log [-r url] [-s sensor] [filename]");
             println!(" tio-tool log-dump filename [filename ...]");
             println!(" tio-tool log-data-dump filename [filename ...]");
+            println!(" tio-tool csv_log [stream id] [metadata] [csv ...]");
             println!(" tio-tool rpc-list [-r url] [-s sensor]");
             println!(" tio-tool rpc [-r url] [-s sensor] [-t type] [-d] <rpc-name> [rpc-arg]");
             println!(" tio-tool rpc-dump [-r url] [-s sensor] <rpc-name>");
