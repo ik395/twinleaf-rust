@@ -6,8 +6,6 @@ use tio::util;
 
 use getopts::Options;
 use std::env;
-
-use bytemuck::cast_slice;
 use pancurses::*;
 
 

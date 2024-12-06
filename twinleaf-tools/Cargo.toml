@@ -9,7 +9,6 @@ repository = "https://github.com/twinleaf/twinleaf-rust"
 readme = "README.md"
 
 [dependencies]
-bytemuck = "1.20.0"
 chrono = "0.4.38"
 crossbeam = "0.8.4"
 getopts = "0.2.21"
