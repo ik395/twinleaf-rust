@@ -13,8 +13,7 @@ crossbeam = "0.8.4"
 mio-serial = "5.0.5"
 crc = "3.2.1"
 num_enum = "0.7.3"
-serde = {version = "1.0.215", features = ["derive"] }
-serde_yaml = "0.9.34"
+
 
 [dependencies.mio]
 version = "0.8"
